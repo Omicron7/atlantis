@@ -383,6 +383,14 @@ Values are chosen in this order:
   ```
   Port to bind to. Defaults to `4141`.
 
+* ### `--project-files-regexp`
+  ```bash
+  atlantis server --project-files-regexp='^.*(\.tf|\.hcl)$'
+  ```
+  Regular expression used to check if a directory contains modified files that should trigger project autoplanning.
+  Defaults to `^.*(\.tf|\.tfvars|\.tfvars.json)$`. A custom [Workflow](repo-level-atlantis-yaml.html#configuring-planning)
+  that uses autoplan `when_modified` will override this value.
+
 * ### `--repo-config`
   ```bash
   atlantis server --repo-config="path/to/repos.yaml"

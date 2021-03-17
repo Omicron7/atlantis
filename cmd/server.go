@@ -76,6 +76,7 @@ const (
 	ParallelPoolSize           = "parallel-pool-size"
 	AllowDraftPRs              = "allow-draft-prs"
 	PortFlag                   = "port"
+	ProjectFilesRegexpFlag     = "project-files-regexp"
 	RepoConfigFlag             = "repo-config"
 	RepoConfigJSONFlag         = "repo-config-json"
 	// RepoWhitelistFlag is deprecated for RepoAllowlistFlag.
@@ -99,19 +100,20 @@ const (
 	WriteGitCredsFlag          = "write-git-creds"
 
 	// NOTE: Must manually set these as defaults in the setDefaults function.
-	DefaultADBasicUser      = ""
-	DefaultADBasicPassword  = ""
-	DefaultCheckoutStrategy = "branch"
-	DefaultBitbucketBaseURL = bitbucketcloud.BaseURL
-	DefaultDataDir          = "~/.atlantis"
-	DefaultGHHostname       = "github.com"
-	DefaultGitlabHostname   = "gitlab.com"
-	DefaultLogLevel         = "info"
-	DefaultParallelPoolSize = 15
-	DefaultPort             = 4141
-	DefaultTFDownloadURL    = "https://releases.hashicorp.com"
-	DefaultTFEHostname      = "app.terraform.io"
-	DefaultVCSStatusName    = "atlantis"
+	DefaultADBasicUser        = ""
+	DefaultADBasicPassword    = ""
+	DefaultCheckoutStrategy   = "branch"
+	DefaultBitbucketBaseURL   = bitbucketcloud.BaseURL
+	DefaultDataDir            = "~/.atlantis"
+	DefaultGHHostname         = "github.com"
+	DefaultGitlabHostname     = "gitlab.com"
+	DefaultLogLevel           = "info"
+	DefaultParallelPoolSize   = 15
+	DefaultPort               = 4141
+	DefaultProjectFilesRegexp = `^.*(\.tf|\.tfvars|\.tfvars.json)$`
+	DefaultTFDownloadURL      = "https://releases.hashicorp.com"
+	DefaultTFEHostname        = "app.terraform.io"
+	DefaultVCSStatusName      = "atlantis"
 )
 
 var stringFlags = map[string]stringFlag{
@@ -217,6 +219,11 @@ var stringFlags = map[string]stringFlag{
 	LogLevelFlag: {
 		description:  "Log level. Either debug, info, warn, or error.",
 		defaultValue: DefaultLogLevel,
+	},
+	ProjectFilesRegexpFlag: {
+		description: "Regular expression used to check if a directory contains modified files that should trigger project planning." +
+			"This defaults to *.tf, *.tfvars, *.tfvars.json. A custom Workflow that uses autoplan 'when_modified' will override this value.",
+		defaultValue: DefaultProjectFilesRegexp,
 	},
 	RepoConfigFlag: {
 		description: "Path to a repo config file, used to customize how Atlantis runs on each repo. See runatlantis.io/docs for more details.",
@@ -587,6 +594,9 @@ func (s *ServerCmd) setDefaults(c *server.UserConfig) {
 	}
 	if c.Port == 0 {
 		c.Port = DefaultPort
+	}
+	if c.ProjectFilesRegexp == "" {
+		c.ProjectFilesRegexp = DefaultProjectFilesRegexp
 	}
 	if c.TFDownloadURL == "" {
 		c.TFDownloadURL = DefaultTFDownloadURL
