@@ -641,6 +641,7 @@ func setupE2E(t *testing.T, repoDir string, policyChecksEnabled bool) (server.Ev
 		commentParser,
 		false,
 		false,
+		`^.*(\.tf|\.tfvars|\.tfvars.json)$`,
 	)
 
 	showStepRunner, err := runtime.NewShowStepRunner(terraformClient, defaultTFVersion)

@@ -34,7 +34,7 @@ type ProjectFinder interface {
 	// DetermineProjects returns the list of projects that were modified based on
 	// the modifiedFiles. The list will be de-duplicated.
 	// absRepoDir is the path to the cloned repo on disk.
-	DetermineProjects(log *logging.SimpleLogger, modifiedFiles []string, repoFullName string, absRepoDir string) []models.Project
+	DetermineProjects(log *logging.SimpleLogger, modifiedFiles []string, repoFullName string, absRepoDir string, projectFilesRegexp string) []models.Project
 	// DetermineProjectsViaConfig returns the list of projects that were modified
 	// based on modifiedFiles and the repo's config.
 	// absRepoDir is the path to the cloned repo on disk.
@@ -48,10 +48,10 @@ var ignoredFilenameFragments = []string{"terraform.tfstate", "terraform.tfstate.
 type DefaultProjectFinder struct{}
 
 // See ProjectFinder.DetermineProjects.
-func (p *DefaultProjectFinder) DetermineProjects(log *logging.SimpleLogger, modifiedFiles []string, repoFullName string, absRepoDir string) []models.Project {
+func (p *DefaultProjectFinder) DetermineProjects(log *logging.SimpleLogger, modifiedFiles []string, repoFullName string, absRepoDir string, projectFilesRegexp string) []models.Project {
 	var projects []models.Project
 
-	modifiedTerraformFiles := p.filterToTerraform(modifiedFiles)
+	modifiedTerraformFiles := p.filterToTerraform(modifiedFiles, projectFilesRegexp)
 	if len(modifiedTerraformFiles) == 0 {
 		return projects
 	}
@@ -145,10 +145,10 @@ func (p *DefaultProjectFinder) DetermineProjectsViaConfig(log *logging.SimpleLog
 	return projects, nil
 }
 
-// filterToTerraform filters non-terraform files from files.
-func (p *DefaultProjectFinder) filterToTerraform(files []string) []string {
+// filterToTerraform filters non-project files from files.
+func (p *DefaultProjectFinder) filterToTerraform(files []string, projectFilesRegexp string) []string {
 	var filtered []string
-	fileNameRe, _ := regexp.Compile(`^.*(\.tf|\.tfvars|\.tfvars.json)$`)
+	fileNameRe, _ := regexp.Compile(projectFilesRegexp)
 
 	for _, fileName := range files {
 		if !p.shouldIgnore(fileName) && (fileNameRe.MatchString(fileName) || filepath.Base(fileName) == "terragrunt.hcl") {

@@ -387,7 +387,7 @@ Values are chosen in this order:
   ```bash
   atlantis server --project-files-regexp='^.*(\.tf|\.hcl)$'
   ```
-  Regular expression used to check if a directory contains modified files that should trigger project autoplanning.
+  Regular expression used to check if a directory contains modified files that should trigger project planning.
   Defaults to `^.*(\.tf|\.tfvars|\.tfvars.json)$`. A custom [Workflow](repo-level-atlantis-yaml.html#configuring-planning)
   that uses autoplan `when_modified` will override this value.
 

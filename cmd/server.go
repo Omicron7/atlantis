@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -689,6 +690,11 @@ func (s *ServerCmd) validate(userConfig server.UserConfig) error {
 
 	if userConfig.TFEHostname != DefaultTFEHostname && userConfig.TFEToken == "" {
 		return fmt.Errorf("if setting --%s, must set --%s", TFEHostnameFlag, TFETokenFlag)
+	}
+
+	_, regexpErr := regexp.Compile(userConfig.ProjectFilesRegexp)
+	if regexpErr != nil {
+		return errors.Wrapf(regexpErr, "--%s value %q is not a valid regexp", ProjectFilesRegexpFlag, userConfig.ProjectFilesRegexp)
 	}
 
 	return nil

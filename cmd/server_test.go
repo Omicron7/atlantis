@@ -523,6 +523,39 @@ func TestExecute_ValidateVCSConfig(t *testing.T) {
 	}
 }
 
+func TestExecute_ValidateProjectFilesRegexp(t *testing.T) {
+	cases := []struct {
+		description string
+		flags       map[string]interface{}
+		expectError bool
+	}{
+		{
+			"regexp is invalid",
+			map[string]interface{}{
+				ProjectFilesRegexpFlag: `^.*(\.tf$`,
+			},
+			true,
+		},
+		{
+			"regexp is valid",
+			map[string]interface{}{
+				ProjectFilesRegexpFlag: `^.*(\.tf|\.hcl)$`,
+			},
+			false,
+		},
+	}
+	for _, testCase := range cases {
+		t.Log("Should validate project files regexp when " + testCase.description)
+		c := setupWithDefaults(testCase.flags)
+		err := c.Execute()
+		if testCase.expectError {
+			Assert(t, err != nil, "should be an error")
+		} else {
+			Ok(t, err)
+		}
+	}
+}
+
 func TestExecute_ExpandHomeInDataDir(t *testing.T) {
 	t.Log("If ~ is used as a data-dir path, should expand to absolute home path")
 	c := setup(map[string]interface{}{
